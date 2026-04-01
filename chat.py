@@ -29,3 +29,13 @@ class Chat:
             "content": result
         })
         return result
+
+if __name__ == "__main__":
+    import readline
+    chat = Chat()
+    while True:
+        message = input("chat> ")
+        if message.lower() == "exit":
+            break
+        response = chat.send_message(message)
+        print(f"Assistant: {response}")
