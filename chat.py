@@ -1,41 +1,78 @@
 import os
-from pyexpat.errors import messages
 from groq import Groq
 
 from dotenv import load_dotenv
 load_dotenv()
 
+
 class Chat:
+    '''
+    >>> chat = Chat()
+    >>> chat.send_message('my name is bob', temperature=0.0)
+    'Arrr, ye be Bob, eh? Yer name be known to me now, matey.'
+    >>> chat.send_message('what is my name?', temperature=0.0)
+    "Ye be askin' about yer own name, eh? Yer name be... Bob, matey!"
+
+    >>> chat2 = Chat()
+    >>> chat2.send_message('what is my name?', temperature=0.0)
+    "Arrr, I be not aware o' yer name, matey."
+    '''
     client = Groq()
+
     def __init__(self):
         self.messages = [
-                {
-                    "role": "system",
-                    "content": "Write the output in 1-2 sentences."
-                }
-            ]
-    def send_message(self, message):
-        self.messages.append({
-            "role": "user",
-            "content": message
-        })
+            {
+                "role": "system",
+                "content": "Write the output in 1-2 sentences. Talk like pirate."
+            },
+        ]
+
+    def send_message(self, message, temperature=0.8):
+        self.messages.append(
+            {
+                'role': 'user',
+                'content': message
+            }
+        )
         chat_completion = self.client.chat.completions.create(
             messages=self.messages,
             model="llama-3.1-8b-instant",
+            temperature=temperature,
         )
-        result =  chat_completion.choices[0].message.content
+        result = chat_completion.choices[0].message.content
         self.messages.append({
-            "role": "assistant",
-            "content": result
+            'role': 'assistant',
+            'content': result
         })
         return result
 
-if __name__ == "__main__":
-    import readline
+
+def repl():
+    '''
+    >>> def monkey_input(prompt, user_inputs=['Hello, I am monkey.', 'Goodbye.']):
+    ...     try:
+    ...         user_input = user_inputs.pop(0)
+    ...         print(f'{prompt}{user_input}')
+    ...         return user_input
+    ...     except IndexError:
+    ...         raise KeyboardInterrupt
+    >>> import builtins
+    >>> builtins.input = monkey_input
+    >>> repl()
+    chat> Hello, I am monkey.
+    Arrr, ye be a mischievous little monkey, eh? Yer chatterin' be music to me ears, matey!    
+    chat> Goodbye.
+    Farewell, little monkey, may the winds o' fortune blow in yer favor!     
+    '''
     chat = Chat()
-    while True:
-        message = input("chat> ")
-        if message.lower() == "exit":
-            break
-        response = chat.send_message(message)
-        print(f"Assistant: {response}")
+    try:
+        while True:
+            user_input = input('chat> ')
+            response = chat.send_message(user_input, temperature=0.0)
+            print(response)
+    except KeyboardInterrupt:
+        print()
+
+
+if __name__ == '__main__':
+    repl()
