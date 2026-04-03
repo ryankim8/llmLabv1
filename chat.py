@@ -62,7 +62,7 @@ def repl():
     chat> Hello, I am monkey.
     Arrr, ye be a mischievous little monkey, eh? Yer chatterin' be music to me ears, matey!
     chat> Goodbye.
-    Farewell, little monkey, may the winds o' fortune blow in yer favor!
+    Farewell, me scurvy monkey friend, may the winds o' fortune blow in yer favor!
     <BLANKLINE>
     '''
     chat = Chat()
