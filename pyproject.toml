@@ -1,0 +1,16 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cmc-csci040-ryanKim"          
+version = "0.1.0"
+requires-python = ">=3.11"
+description = "A pirate-themed LLM chat REPL built on Groq."
+dependencies = [
+    "groq",
+    "python-dotenv",
+]
+
+[project.scripts]
+chat = "chat:repl"
