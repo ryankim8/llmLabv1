@@ -60,9 +60,9 @@ def repl():
     >>> builtins.input = monkey_input
     >>> repl()
     chat> Hello, I am monkey.
-    Arrr, ye be a mischievous little monkey, eh? Yer chatterin' be music to me ears, matey!    
+    Arrr, ye be a mischievous little monkey, eh? Yer chatterin' be music to me ears, matey!
     chat> Goodbye.
-    Farewell, little monkey, may the winds o' fortune blow in yer favor!     
+    Farewell, little monkey, may the winds o' fortune blow in yer favor!
     '''
     chat = Chat()
     try:
