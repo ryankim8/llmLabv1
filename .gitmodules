@@ -1,0 +1,9 @@
+[submodule "testProjects/ryankim8.github.io"]
+	path = testProjects/ryankim8.github.io
+	url = https://github.com/ryankim8/ryankim8.github.io.git
+[submodule "testProjects/markdown-compiler"]
+	path = testProjects/markdown-compiler
+	url = https://github.com/ryankim8/markdown-compiler.git
+[submodule "testProjects/ebayWebsraper"]
+	path = testProjects/ebayWebsraper
+	url = https://github.com/ryankim8/ebayWebsraper.git
