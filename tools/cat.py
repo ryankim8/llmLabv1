@@ -5,20 +5,31 @@ def cat(path):
     # Reads and returns content of file
 
     """
-    >>> import os
-    >>> open('_tmp_cat.txt', 'w').write('hello world')
-    11
-    >>> cat('_tmp_cat.txt')
-    'hello world'
-    >>> os.unlink('_tmp_cat.txt')
-    >>> cat('nonexistent_file.txt')
-    'Error: file not found'
-    >>> cat('/etc/passwd')
-    'Access denied: unsafe path'
-    >>> cat('../nope.txt')
-    'Access denied: unsafe path'
-    >>> cat('catTestv1.txt')
+    >>> # Normal Read
+    >>> cat('testCases/testV1.txt')
     'This is a doctest for the cat tool'
+
+    >>> # File Not Found
+    >>> cat('nonexistentFile.txt')
+    'Error: file not found'
+
+    >>> # Unsafe Path
+    >>> cat('/unsafe/veryUnsafe.txt')
+    'Access denied: unsafe path'
+
+    >>> # Unsafe Path with Traversal
+    >>> cat('../superDuperUnsafe.txt')
+    'Access denied: unsafe path'
+
+    >>> # UTF-16 File
+    >>> import os
+    >>> with open('testCases/_tmp.bin', 'wb') as f:
+    ...     _ = f.write(bytes([0x80, 0x81]))
+    >>> cat('testCases/_tmp.bin')
+    'Error: could not decode file'
+    >>> os.unlink('testCases/_tmp.bin')
+
+
     """
     if not is_path_safe(path):
         return 'Access denied: unsafe path'

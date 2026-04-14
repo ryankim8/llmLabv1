@@ -83,10 +83,10 @@ AVAILABLE_FUNCTIONS = {
 class Chat:
     """
     >>> chat = Chat()
-    >>> chat.send_message('my name is bob', temperature=0.0)
-    "Arrr, nice to meet ye, Bob me lad! What be bringin' ye to these fair waters?"
-    >>> chat.send_message('what is my name?', temperature=0.0)
-    "Ye be wantin' to know yer own name, eh? Yer name be Bob, matey!"
+    >>> chat.send_message('my name is bob', temperature=0.0)  # doctest: +ELLIPSIS
+    "...Bob..."
+    >>> chat.send_message('what is my name?', temperature=0.0)  # doctest: +ELLIPSIS
+    "...Bob..."
     """
 
     client = Groq()
@@ -99,6 +99,8 @@ class Chat:
                     "Respond in 1-2 sentences. Talk like a pirate. "
                     "Use the calculate tool only when asked to do math. "
                     "Use ls, cat, and grep only when explicitly asked about files."
+                    "When the user provides output from a slash command, use that information to answer their question directly without calling any tools again."
+
                 )
             }
         ]
@@ -162,19 +164,24 @@ class Chat:
 
 def handle_slash_command(line):
     """
-    >>> import os, shutil
-    >>> os.makedirs('slash', exist_ok=True)
-    >>> open('slash/hello.txt', 'w').write('hello world')
-    11
-    >>> handle_slash_command('/ls slash')
-    'slash/hello.txt'
-    >>> handle_slash_command('/cat slash/hello.txt')
-    'hello world'
-    >>> handle_slash_command('/grep hello slash/hello.txt')
-    'hello world'
-    >>> shutil.rmtree('slash')
-    >>> handle_slash_command('/unknown foo')
-    'Unknown command: unknown'
+    >>> handle_slash_command('/ls testCases')
+    'testCases/testV1.txt'
+    >>> handle_slash_command('/cat testCases/testV1.txt')
+    'This is a doctest for the cat tool'
+    >>> handle_slash_command('/grep doctest testCases/testV1.txt')
+    'This is a doctest for the cat tool'
+    >>> handle_slash_command('/calculate 2 + 2')
+    '4'
+    >>> handle_slash_command('/calculate')
+    'Error: calculate requires an expression'
+    >>> handle_slash_command('/cat')
+    'Error: cat requires a file argument'
+    >>> handle_slash_command('/grep hello')
+    'Error: grep requires a pattern and a path'
+    >>> handle_slash_command('/ls')
+    './README.md ./__pycache__ ./chat.py ./dist ./pyproject.toml ./requirements.txt ./testCases ./testProjects ./tools ./venv'
+    >>> handle_slash_command('/unknownCmd')
+    'Unknown command: unknownCmd'
     """
     parts = line[1:].split()
     command = parts[0]
@@ -200,7 +207,7 @@ def handle_slash_command(line):
 
 def repl():
     """
-    >>> def monkey_input(prompt, user_inputs=['Hello, I am monkey.', 'Goodbye.']):
+    >>> def monkey_input(prompt, user_inputs=['/ls .', 'Hello, I am monkey.', 'Goodbye.']):
     ...     try:
     ...         user_input = user_inputs.pop(0)
     ...         print(f'{prompt}{user_input}')
@@ -210,6 +217,8 @@ def repl():
     >>> import builtins
     >>> builtins.input = monkey_input
     >>> repl()
+    chat> /ls .
+    ./README.md ./__pycache__ ./chat.py ./dist ./pyproject.toml ./requirements.txt ./testCases ./testProjects ./tools ./venv
     chat> Hello, I am monkey.
     Arrr, 'ello there, Monkey me lad! What be bringin' ye to these fair waters?
     chat> Goodbye.

@@ -15,11 +15,12 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install groq python-dotenv pytest coverage
+        run: pip install groq python-dotenv pytest coverage pytest-cov codecov
 
       - name: Run doctests with coverage
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: |
-          coverage run -m pytest chat.py --doctest-modules
-          coverage report -m
+          pytest --doctest-modules --cov=. --cov-report=xml
+          codecov
