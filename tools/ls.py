@@ -3,7 +3,7 @@ from tools.safety import is_path_safe
 
 
 def ls(path='.'):
-    #List files in directory
+    # List files in directory
 
     """
     Returns a sorted space-separated string of filenames in the given directory.

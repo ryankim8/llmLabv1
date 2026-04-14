@@ -1,5 +1,6 @@
 from tools.safety import is_path_safe
 
+
 def cat(path):
     # Reads and returns content of file
 
