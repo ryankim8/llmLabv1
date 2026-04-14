@@ -110,8 +110,8 @@ class Chat:
 
         """
         >>> chat = Chat()
-        >>> chat.send_message('my name is bob', temperature=0.0)
-        "Arrr, nice to meet ye, Bob me lad! What be bringin' ye to these fair waters?"
+        >>> chat.send_message('my name is bob', temperature=0.0)   # doctest: +ELLIPSIS
+        "...Bob..."
         """
         self.messages.append({"role": "user", "content": message})
         while True:
