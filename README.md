@@ -1,3 +1,7 @@
+# lab - pip install and PEP8
+
+![](https://github.com/ryankim8/llmlabv1/workflows/flake8/badge.svg)&nbsp;
+
 ![doctests](https://github.com/ryankim8/llmLabv1/actions/workflows/doctests.yaml/badge.svg)
 ![integration-tests](https://github.com/ryankim8/llmLabv1/actions/workflows/integration-tests.yaml/badge.svg)
 

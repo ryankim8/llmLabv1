@@ -1,3 +1,7 @@
+"""
+A pirate-themed LLM chat REPL that supports file tools (ls, cat, grep) and math via Groq.
+"""
+
 import json
 from groq import Groq
 from dotenv import load_dotenv

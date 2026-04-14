@@ -17,4 +17,4 @@ dependencies = [
 chat = "chat:repl"
 
 [tool.hatch.build.targets.wheel]
-include = ["chat.py"]
+include = ["chat.py", "tools/"]
