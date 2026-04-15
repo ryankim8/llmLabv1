@@ -179,7 +179,7 @@ def handle_slash_command(line):
     >>> handle_slash_command('/grep hello')
     'Error: grep requires a pattern and a path'
     >>> handle_slash_command('/ls')
-    './README.md ./__pycache__ ./chat.py ./dist ./pyproject.toml ./requirements.txt ./testCases ./testProjects ./tools ./venv'
+    './README.md ./__pycache__ ./chat.py ./coverage.xml ./dist ./pyproject.toml ./requirements.txt ./testCases ./testProjects ./tools ./venv'
     >>> handle_slash_command('/unknownCmd')
     'Unknown command: unknownCmd'
     """
@@ -218,7 +218,7 @@ def repl():
     >>> builtins.input = monkey_input
     >>> repl()
     chat> /ls .
-    ./README.md ./__pycache__ ./chat.py ./dist ./pyproject.toml ./requirements.txt ./testCases ./testProjects ./tools ./venv
+    ./README.md ./__pycache__ ./chat.py ./coverage.xml ./dist ./pyproject.toml ./requirements.txt ./testCases ./testProjects ./tools ./venv
     chat> Hello, I am monkey.
     Arrr, 'ello there, Monkey me lad! What be bringin' ye to these fair waters?
     chat> Goodbye.

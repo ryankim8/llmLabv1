@@ -9,10 +9,10 @@ def ls(path='.'):
     Returns a sorted space-separated string of filenames in the given directory.
 
     >>> ls()
-    './README.md ./__pycache__ ./chat.py ./dist ./pyproject.toml ./requirements.txt ./testCases ./testProjects ./tools ./venv'
+    './README.md ./__pycache__ ./chat.py ./coverage.xml ./dist ./pyproject.toml ./requirements.txt ./testCases ./testProjects ./tools ./venv'
 
-    >>> ls('tools')
-    'tools/__pycache__ tools/calculate.py tools/cat.py tools/grep.py tools/ls.py tools/safety.py'
+    >>> ls('testCases')
+    'testCases/testV1.txt'
 
     >>> ls('/etc')
     'Access denied: unsafe path'
