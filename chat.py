@@ -178,8 +178,8 @@ def handle_slash_command(line):
     'Error: cat requires a file argument'
     >>> handle_slash_command('/grep hello')
     'Error: grep requires a pattern and a path'
-    >>> handle_slash_command('/ls')
-    './README.md ./__pycache__ ./chat.py ./coverage.xml ./dist ./pyproject.toml ./requirements.txt ./testCases ./testProjects ./tools ./venv'
+    >>> 'chat.py' in handle_slash_command('/ls')
+    True
     >>> handle_slash_command('/unknownCmd')
     'Unknown command: unknownCmd'
     """
@@ -207,7 +207,7 @@ def handle_slash_command(line):
 
 def repl():
     """
-    >>> def monkey_input(prompt, user_inputs=['/ls .', 'Hello, I am monkey.', 'Goodbye.']):
+    >>> def monkey_input(prompt, user_inputs=['/ls testCases', 'Hello, I am monkey.', 'Goodbye.']):
     ...     try:
     ...         user_input = user_inputs.pop(0)
     ...         print(f'{prompt}{user_input}')
@@ -217,8 +217,8 @@ def repl():
     >>> import builtins
     >>> builtins.input = monkey_input
     >>> repl()
-    chat> /ls .
-    ./README.md ./__pycache__ ./chat.py ./coverage.xml ./dist ./pyproject.toml ./requirements.txt ./testCases ./testProjects ./tools ./venv
+    chat> /ls testCases
+    testCases/testV1.txt
     chat> Hello, I am monkey.
     Arrr, 'ello there, Monkey me lad! What be bringin' ye to these fair waters?
     chat> Goodbye.

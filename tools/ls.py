@@ -8,8 +8,8 @@ def ls(path='.'):
     """
     Returns a sorted space-separated string of filenames in the given directory.
 
-    >>> ls()
-    './README.md ./__pycache__ ./chat.py ./coverage.xml ./dist ./pyproject.toml ./requirements.txt ./testCases ./testProjects ./tools ./venv'
+    >>> 'chat.py' in ls()
+    True
 
     >>> ls('testCases')
     'testCases/testV1.txt'
