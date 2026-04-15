@@ -9,7 +9,7 @@
 An AI-powered terminal chat agent that lets you explore and query local files using natural language, powered by Groq.
 
 ## Demo
-![demo](docsum\gifvideoonline-video-cutter.com-ezgif.com-video-to-gif-converter (1).gif)
+![demo](demo.gif)
 
 ## Install & Run
 
