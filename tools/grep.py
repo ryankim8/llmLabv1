@@ -4,26 +4,38 @@ from tools.safety import is_path_safe
 
 
 def grep(pattern, path):
-    # Returns all lines matching pattern in files matching path
-
     """
-    >>> # Normal Grep
+    Returns all lines matching pattern in files matching path
+
+    # Note on my changes below:
+    # AI likes to put comments after the >>>,
+    # but this is bad practice because then these comment lines
+    # count as tests, and it inflates the number of tests that your
+    # project has; I also find the style below less cluttered and 
+    # more readable
+
+    Normal Grep
+
     >>> grep('doctest', 'testCases/testV1.txt')
     'This is a doctest for the cat tool'
 
-    >>> # No Matches
+    No Matches
+
     >>> grep('nomatch', 'testCases/testV1.txt')
     ''
 
-    >>> # Unsafe Path
+    Unsafe Path
+
     >>> grep('isThisUnsafe', '/unsafe/veryUnsafe.txt')
     'Access denied: unsafe path'
 
-    >>> # Unsafe Path with Traversal
+    Unsafe Path with Traversal
+
     >>> grep('isThisUnsafe', '../superDuperUnsafe.txt')
     'Access denied: unsafe path'
 
-    >>> #Unreadable File
+    Unreadable File
+
     >>> import os
     >>> with open('testCases/temp.bin', 'wb') as f:
     ...     _ = f.write(bytes([0x80, 0x81]))

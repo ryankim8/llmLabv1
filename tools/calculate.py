@@ -1,6 +1,4 @@
 def calculate(expression):
-    # Calculator function
-
     """
     Evaluates a math expression and returns the result as a string.
 

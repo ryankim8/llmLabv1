@@ -12,6 +12,8 @@ from tools.calculate import calculate
 
 load_dotenv()
 
+# these schemas should be moved into the tools/* python files;
+# in general, we want everything about a function to be as close together as possible
 TOOLS = [
     {
         "type": "function",
@@ -100,20 +102,27 @@ class Chat:
                     "Use the calculate tool only when asked to do math. "
                     "Use ls, cat, and grep only when explicitly asked about files."
                     "When the user provides output from a slash command, use that information to answer their question directly without calling any tools again."
-
+                    # the system prompt generally shouldn't mention any tools by name
+                    # it should only use generic language so that whenever we add/remove a tool
+                    # we only have to modify as few locations of code as possible
                 )
             }
         ]
 
     def send_message(self, message, temperature=0.8):
-        # Send prompt and calls tools if needed
-
         """
+        Send prompt and calls tools if needed
+
+        The documentation for a function needs to be inside the string,
+        not in a # comment
+
         >>> chat = Chat()
         >>> chat.send_message('my name is bob', temperature=0.0)   # doctest: +ELLIPSIS
         "...Bob..."
         """
         self.messages.append({"role": "user", "content": message})
+        # it is safer to make this a for loop so that it won't accidentally
+        # loop forever and use all your tokens
         while True:
             response = self.client.chat.completions.create(
                 messages=self.messages,
@@ -156,6 +165,12 @@ class Chat:
         >>> chat.messages[-1]['content']
         '/ls output: file1.txt file2.txt'
         """
+        # it's fine that you've created this function,
+        # but a good rule of thumb is:
+        # if the documentation/doctests are longer than the function,
+        # it probably shouldn't be a function;
+        # you only call this function in one place,
+        # and you could have just as easily appended there
         self.messages.append({
             "role": "user",
             "content": f"/{name} output: {output}",
@@ -164,6 +179,8 @@ class Chat:
 
 def handle_slash_command(line):
     """
+    You need documentation here about what this function does.
+
     >>> handle_slash_command('/ls testCases')
     'testCases/testV1.txt'
     >>> handle_slash_command('/cat testCases/testV1.txt')
@@ -187,6 +204,10 @@ def handle_slash_command(line):
     command = parts[0]
     args = parts[1:]
 
+    # this works, but it would have been nicer to make this code
+    # fully generic so that when you add more tools later,
+    # you don't have to modify the slash commands here at all;
+    # how to do this is admittedly not obvious, though
     if command == 'ls':
         return ls(args[0] if args else '.')
     elif command == 'cat':
@@ -207,6 +228,8 @@ def handle_slash_command(line):
 
 def repl():
     """
+    Need documentation about what this does
+
     >>> def monkey_input(prompt, user_inputs=['/ls testCases', 'Hello, I am monkey.', 'Goodbye.']):
     ...     try:
     ...         user_input = user_inputs.pop(0)

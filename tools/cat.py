@@ -2,9 +2,9 @@ from tools.safety import is_path_safe
 
 
 def cat(path):
-    # Reads and returns content of file
-
     """
+    Reads and returns content of file
+
     >>> # Normal Read
     >>> cat('testCases/testV1.txt')
     'This is a doctest for the cat tool'
@@ -28,8 +28,6 @@ def cat(path):
     >>> cat('testCases/_tmp.bin')
     'Error: could not decode file'
     >>> os.unlink('testCases/_tmp.bin')
-
-
     """
     if not is_path_safe(path):
         return 'Access denied: unsafe path'

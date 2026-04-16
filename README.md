@@ -8,16 +8,14 @@
 
 An AI-powered terminal chat agent that lets you explore and query local files using natural language, powered by Groq.
 
-## Demo
+## Examples
+
+<!-- everytime you have a figure/codeblock/etc, you need sometext beforehand telling the reader why they should care -->
+
 ![demo](demo.gif)
 
-## Install & Run
-
-``` bash
-pip install cmc-csci040-ryankim
-chat
-```
-### Example files in directory (ryankim8.github.io)
+<!-- everyone who uses github knows how to install a pypi project;
+you don't want to waste their attention telling them -->
 
 This example shows how the agent can look at other files in the directory
 
@@ -30,8 +28,6 @@ chat> tell me about these files
 This is a simple web page for a zoo. It has a navigation menu with links to different animal pages, a table listing the animals in the zoo, and a footer with links to the author's work and a Creative Commons license. The page also includes some basic CSS styling to make it look a bit nicer.
 ```
 
-### Example summarize content (markdown-compiler)
-
 This example shows how the agent cant read the content of files in a folder (ex: README.md) and return a summary
 
 ```
@@ -41,9 +37,6 @@ chat> /cat README.md
 chat> tell me about this project
 This be a Markdown to HTML compiler, a simple project that converts Markdown files to HTML. It seems to have a basic usage where ye can just run it on a Markdown file, and it'll spit out the HTML version. But if ye want some fancy CSS formatting, ye can use the `--add_css` flag.
 ```
-
-
-### Example find Python libraries (ebayWebscraper)
 
 This example shows how the agent can read and output specific details about the project, such as Python libraries
 
@@ -61,5 +54,6 @@ The project uses the following Python imports:
 - `bs4`
 - `undetected_playwright`
 ```
+<!-- it would be nice to have some examples that are automatically calling the tools and not manually doing it -->
 
 
