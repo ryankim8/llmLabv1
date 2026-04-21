@@ -1,24 +1,31 @@
-"""
-A pirate-themed LLM chat REPL that supports file tools (ls, cat, grep) and math via Groq.
-"""
-
 import json
+import os
 from groq import Groq
 from dotenv import load_dotenv
 from tools.ls import ls, SCHEMA as ls_schema
 from tools.cat import cat, SCHEMA as cat_schema
 from tools.grep import grep, SCHEMA as grep_schema
 from tools.calculate import calculate, SCHEMA as calculate_schema
+from tools.doctests import doctests, SCHEMA as doctests_schema
+from tools.write_file import write_file, SCHEMA as write_file_schema
+from tools.write_files import write_files, SCHEMA as write_files_schema
+from tools.rm import rm, SCHEMA as rm_schema
+
+
 
 load_dotenv()
 
-TOOLS = [ls_schema, cat_schema, grep_schema, calculate_schema]
+TOOLS = [ls_schema, cat_schema, grep_schema, calculate_schema, doctests_schema, write_file_schema, write_files_schema, rm_schema]
 
 AVAILABLE_FUNCTIONS = {
     "ls": ls,
     "cat": cat,
     "grep": grep,
     "calculate": calculate,
+    "doctests": doctests,
+    "write_file": write_file,
+    "write_files": write_files,
+    "rm": rm,
 }
 
 
@@ -93,7 +100,7 @@ def handle_slash_command(line):
     in AVAILABLE_FUNCTIONS. Returns the tool output or an error string.
 
     >>> handle_slash_command('/ls testCases')
-    'testCases/testV1.txt'
+    'testCases/a.txt testCases/b.txt testCases/testV1.txt testCases/test_write.txt'
     >>> handle_slash_command('/cat testCases/testV1.txt')
     'This is a doctest for the cat tool'
     >>> handle_slash_command('/grep doctest testCases/testV1.txt')
@@ -132,9 +139,10 @@ def handle_slash_command(line):
 
 def repl():
     """
-    Starts an interactive chat loop. Slash commands (e.g. /ls, /cat) are executed
-    directly as tools and their output is injected into the conversation history.
-    All other input is sent to the LLM. Exit with Ctrl+C or Ctrl+D.
+    Starts an interactive chat loop. Checks for a .git folder and loads AGENTS.md
+    if present. Slash commands are executed directly as tools and their output is
+    injected into the conversation history. All other input is sent to the LLM.
+    Exit with Ctrl+C or Ctrl+D.
 
     >>> def monkey_input(prompt, user_inputs=['/ls testCases', 'Hello, I am monkey.', 'Goodbye.']):
     ...     try:
@@ -145,16 +153,28 @@ def repl():
     ...         raise KeyboardInterrupt
     >>> import builtins
     >>> builtins.input = monkey_input
-    >>> repl()
+    >>> result = repl()
     chat> /ls testCases
-    testCases/testV1.txt
+    testCases/a.txt testCases/b.txt testCases/testV1.txt testCases/test_write.txt
     chat> Hello, I am monkey.
     Hello Monkey, how can I assist you today?
     chat> Goodbye.
-    Goodbye, it was nice chatting with you.
+    Goodbye Monkey.
     <BLANKLINE>
     """
+    if not os.path.exists('.git'):
+        print('Error: not a git repository')
+        return
+
     chat = Chat()
+
+    if os.path.exists('AGENTS.md'):
+        agents_content = cat('AGENTS.md')
+        chat.messages.append({
+            'role': 'user',
+            'content': f'AGENTS.md: {agents_content}',
+        })
+
     try:
         while True:
             user_input = input('chat> ')
@@ -164,12 +184,11 @@ def repl():
                 chat.messages.append({
                     "role": "user",
                     "content": f"/{user_input[1:].split()[0]} output: {output}",
-                })
+                    })
             else:
                 print(chat.send_message(user_input, temperature=0.0))
     except (KeyboardInterrupt, EOFError):
         print()
-
 
 if __name__ == '__main__':
     repl()

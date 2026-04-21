@@ -11,6 +11,9 @@ def ls(path='.'):
     >>> 'chat.py' in ls()
     True
 
+    >>> 'testCases/testV1.txt' in ls('testCases')
+    True
+
     >>> ls('testCases')
     'testCases/testV1.txt'
 
