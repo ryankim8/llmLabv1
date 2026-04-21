@@ -18,3 +18,19 @@ def calculate(expression):
         return str(result)
     except Exception as e:
         return f'Error: {e}'
+
+
+SCHEMA = {
+    "type": "function",
+    "function": {
+        "name": "calculate",
+        "description": "Evaluate a mathematical expression.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "expression": {"type": "string", "description": "Math expression to evaluate."}
+            },
+            "required": ["expression"],
+        },
+    },
+}

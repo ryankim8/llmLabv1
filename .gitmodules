@@ -7,3 +7,12 @@
 [submodule "testProjects/ebayWebsraper"]
 	path = testProjects/ebayWebsraper
 	url = https://github.com/ryankim8/ebayWebsraper.git
+[submodule "ebayWebsraper"]
+	path = ebayWebsraper
+	url = https://github.com/ryankim8/ebayWebsraper.git
+[submodule "markdown-compiler"]
+	path = markdown-compiler
+	url = https://github.com/ryankim8/markdown-compiler.git
+[submodule "ryankim8.github.io"]
+	path = ryankim8.github.io
+	url = https://github.com/ryankim8/ryankim8.github.io.git
