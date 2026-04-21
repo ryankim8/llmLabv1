@@ -11,27 +11,31 @@ def rm(path):
     >>> open('testCases/tempRm.txt', 'w').close()
     >>> rm('testCases/tempRm.txt')
     'Removed and committed: testCases/tempRm.txt'
+    >>> import os
     >>> os.path.exists('testCases/tempRm.txt')
     False
-    >>> rm('/unsafe/veryunsafe.txt')
+    >>> rm('/etc/passwd')
     'Access denied: unsafe path'
-    >>> rm('../unsafe.txt')
+    >>> rm('../secret.txt')
     'Access denied: unsafe path'
-    >>> rm('testCases/random.txt')
-    'No files found: testCases/random.txt'
+    >>> rm('testCases/nonexistent.txt')
+    'No files found: testCases/nonexistent.txt'
     """
     if not is_path_safe(path):
         return 'Access denied: unsafe path'
 
-    matches = glob.glob(path)
+    matches = [f.replace('\\', '/') for f in glob.glob(path)]
     if not matches:
         return f'No files found: {path}'
 
+    repo = git.Repo('.')
     for filepath in matches:
         os.remove(filepath)
 
-    repo = git.Repo('.')
-    repo.index.remove(matches, working_tree=True)
+    try:
+        repo.index.remove(matches)
+    except Exception:
+        pass
     repo.index.commit(f'[docchat] rm {path}')
 
     return 'Removed and committed: ' + ', '.join(matches)

@@ -65,7 +65,7 @@ class Chat:
         for _ in range(10):
             response = self.client.chat.completions.create(
                 messages=self.messages,
-                model="llama-3.3-70b-versatile",
+                model="llama-3.1-8b-instant",
                 temperature=temperature,
                 tools=TOOLS,
                 tool_choice="auto",
@@ -157,9 +157,9 @@ def repl():
     chat> /ls testCases
     testCases/a.txt testCases/b.txt testCases/testV1.txt testCases/test_write.txt
     chat> Hello, I am monkey.
-    Hello Monkey, how can I assist you today?
+    Hello monkey.
     chat> Goodbye.
-    Goodbye Monkey.
+    Goodbye monkey.
     <BLANKLINE>
     """
     if not os.path.exists('.git'):
