@@ -70,6 +70,7 @@ class Chat:
         True
         """
         self.messages.append({"role": "user", "content": message})
+        last_tool_result = None
         for _ in range(10):
             response = self.client.chat.completions.create(
                 messages=self.messages,
@@ -96,14 +97,14 @@ class Chat:
                 valid_args = inspect.signature(fn).parameters
                 fn_args = {k: v for k, v in fn_args.items() if k in valid_args}
                 fn_result = fn(**fn_args)
-                self.messages.append(
-                    {
-                        "role": "tool",
-                        "tool_call_id": tool_call.id,
-                        "name": fn_name,
-                        "content": fn_result,
-                    }
-                )
+                last_tool_result = fn_result
+                self.messages.append({
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "name": fn_name,
+                    "content": fn_result,
+                })
+        return last_tool_result
 
 
 def handle_slash_command(line):
