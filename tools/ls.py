@@ -3,16 +3,14 @@ from tools.safety import is_path_safe
 
 
 def ls(path='.'):
-    # List files in directory
-
     """
     Returns a sorted space-separated string of filenames in the given directory.
 
     >>> 'chat.py' in ls()
     True
 
-    >>> ls('testCases')
-    'testCases/testV1.txt'
+    >>> 'testCases/testV1.txt' in ls('testCases')
+    True
 
     >>> ls('/etc')
     'Access denied: unsafe path'
@@ -24,3 +22,19 @@ def ls(path='.'):
         return 'Access denied: unsafe path'
     names = sorted(f.replace('\\', '/') for f in glob.glob(f'{path}/*'))
     return ' '.join(names)
+
+
+SCHEMA = {
+    "type": "function",
+    "function": {
+        "name": "ls",
+        "description": "List files in a directory.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "path": {"type": "string", "description": "Directory to list. Defaults to '.'."}
+            },
+            "required": [],
+        },
+    },
+}

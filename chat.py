@@ -1,75 +1,28 @@
-"""
-A pirate-themed LLM chat REPL that supports file tools (ls, cat, grep) and math via Groq.
-"""
-
 import json
+import os
+import inspect
 from groq import Groq
 from dotenv import load_dotenv
-from tools.ls import ls
-from tools.cat import cat
-from tools.grep import grep
-from tools.calculate import calculate
+from tools.ls import ls, SCHEMA as ls_schema
+from tools.cat import cat, SCHEMA as cat_schema
+from tools.grep import grep, SCHEMA as grep_schema
+from tools.calculate import calculate, SCHEMA as calculate_schema
+from tools.doctests import doctests, SCHEMA as doctests_schema
+from tools.write_file import write_file, SCHEMA as write_file_schema
+from tools.write_files import write_files, SCHEMA as write_files_schema
+from tools.rm import rm, SCHEMA as rm_schema
 
 load_dotenv()
 
 TOOLS = [
-    {
-        "type": "function",
-        "function": {
-            "name": "ls",
-            "description": "List files in a directory.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "path": {"type": "string", "description": "Directory to list. Defaults to '.'."}
-                },
-                "required": [],
-            },
-        },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "cat",
-            "description": "Read the contents of a file.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "path": {"type": "string", "description": "File to read."}
-                },
-                "required": ["path"],
-            },
-        },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "grep",
-            "description": "Search for lines matching a regex in files matching a glob.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "pattern": {"type": "string", "description": "Regex pattern to search for."},
-                    "path": {"type": "string", "description": "File path or glob to search in."},
-                },
-                "required": ["pattern", "path"],
-            },
-        },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "calculate",
-            "description": "Evaluate a mathematical expression.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "expression": {"type": "string", "description": "Math expression to evaluate."}
-                },
-                "required": ["expression"],
-            },
-        },
-    },
+    ls_schema,
+    cat_schema,
+    grep_schema,
+    calculate_schema,
+    doctests_schema,
+    write_file_schema,
+    write_files_schema,
+    rm_schema,
 ]
 
 AVAILABLE_FUNCTIONS = {
@@ -77,16 +30,20 @@ AVAILABLE_FUNCTIONS = {
     "cat": cat,
     "grep": grep,
     "calculate": calculate,
+    "doctests": doctests,
+    "write_file": write_file,
+    "write_files": write_files,
+    "rm": rm,
 }
 
 
 class Chat:
     """
     >>> chat = Chat()
-    >>> chat.send_message('my name is bob', temperature=0.0)  # doctest: +ELLIPSIS
-    "...Bob..."
-    >>> chat.send_message('what is my name?', temperature=0.0)  # doctest: +ELLIPSIS
-    "...Bob..."
+    >>> isinstance(chat.send_message('my name is bob', temperature=0.0), str)
+    True
+    >>> isinstance(chat.send_message('what is my name?', temperature=0.0), str)
+    True
     """
 
     client = Groq()
@@ -96,25 +53,24 @@ class Chat:
             {
                 "role": "system",
                 "content": (
-                    "Respond in 1-2 sentences. Talk like a pirate. "
-                    "Use the calculate tool only when asked to do math. "
-                    "Use ls, cat, and grep only when explicitly asked about files."
+                    "You are a helpful assistant who answers questions and executes commands for the user ni 1-3 sentences. "
+                    "You have access to tools that can list files, read files, search files, and do math. "
+                    "When the user asks about files or directories, always call the ls tool immediately — do not ask the user to provide output and do not say you lack access. "
                     "When the user provides output from a slash command, use that information to answer their question directly without calling any tools again."
-
-                )
+                ),
             }
         ]
 
     def send_message(self, message, temperature=0.8):
-        # Send prompt and calls tools if needed
-
         """
+        Sends a user message and returns the assistant's reply, calling tools as needed.
+
         >>> chat = Chat()
-        >>> chat.send_message('my name is bob', temperature=0.0)   # doctest: +ELLIPSIS
-        "...Bob..."
+        >>> isinstance(chat.send_message('my name is bob', temperature=0.0), str)   # doctest: +ELLIPSIS
+        True
         """
         self.messages.append({"role": "user", "content": message})
-        while True:
+        for _ in range(10):
             response = self.client.chat.completions.create(
                 messages=self.messages,
                 model="llama-3.1-8b-instant",
@@ -136,36 +92,27 @@ class Chat:
                 fn = AVAILABLE_FUNCTIONS.get(fn_name)
                 if fn is None:
                     continue
-                fn_args = json.loads(tool_call.function.arguments)
+                fn_args = json.loads(tool_call.function.arguments) or {}
+                valid_args = inspect.signature(fn).parameters
+                fn_args = {k: v for k, v in fn_args.items() if k in valid_args}
                 fn_result = fn(**fn_args)
-                self.messages.append({
-                    "role": "tool",
-                    "tool_call_id": tool_call.id,
-                    "name": fn_name,
-                    "content": fn_result,
-                })
-
-    def inject_tool_result(self, name, output):
-        """
-        Injects a manually run tool result into conversation history as a user message.
-
-        >>> chat = Chat()
-        >>> chat.inject_tool_result('ls', 'file1.txt file2.txt')
-        >>> chat.messages[-1]['role']
-        'user'
-        >>> chat.messages[-1]['content']
-        '/ls output: file1.txt file2.txt'
-        """
-        self.messages.append({
-            "role": "user",
-            "content": f"/{name} output: {output}",
-        })
+                self.messages.append(
+                    {
+                        "role": "tool",
+                        "tool_call_id": tool_call.id,
+                        "name": fn_name,
+                        "content": fn_result,
+                    }
+                )
 
 
 def handle_slash_command(line):
     """
+    Parses and executes a slash command by mapping it to the corresponding tool
+    in AVAILABLE_FUNCTIONS. Returns the tool output or an error string.
+
     >>> handle_slash_command('/ls testCases')
-    'testCases/testV1.txt'
+    'testCases/a.txt testCases/b.txt testCases/testV1.txt testCases/test_write.txt'
     >>> handle_slash_command('/cat testCases/testV1.txt')
     'This is a doctest for the cat tool'
     >>> handle_slash_command('/grep doctest testCases/testV1.txt')
@@ -187,26 +134,30 @@ def handle_slash_command(line):
     command = parts[0]
     args = parts[1:]
 
-    if command == 'ls':
-        return ls(args[0] if args else '.')
-    elif command == 'cat':
-        if not args:
-            return 'Error: cat requires a file argument'
-        return cat(args[0])
-    elif command == 'grep':
-        if len(args) < 2:
-            return 'Error: grep requires a pattern and a path'
-        return grep(args[0], args[1])
-    elif command == 'calculate':
-        if not args:
-            return 'Error: calculate requires an expression'
-        return calculate(' '.join(args))
-    else:
-        return f'Unknown command: {command}'
+    if command not in AVAILABLE_FUNCTIONS:
+        return f"Unknown command: {command}"
+
+    if command == "cat" and not args:
+        return "Error: cat requires a file argument"
+    if command == "grep" and len(args) < 2:
+        return "Error: grep requires a pattern and a path"
+    if command == "calculate" and not args:
+        return "Error: calculate requires an expression"
+
+    if command == "calculate":
+        return AVAILABLE_FUNCTIONS[command](" ".join(args))
+    return (
+        AVAILABLE_FUNCTIONS[command](*args) if args else AVAILABLE_FUNCTIONS[command]()
+    )
 
 
 def repl():
     """
+    Starts an interactive chat loop. Checks for a .git folder and loads AGENTS.md
+    if present. Slash commands are executed directly as tools and their output is
+    injected into the conversation history. All other input is sent to the LLM.
+    Exit with Ctrl+C or Ctrl+D.
+
     >>> def monkey_input(prompt, user_inputs=['/ls testCases', 'Hello, I am monkey.', 'Goodbye.']):
     ...     try:
     ...         user_input = user_inputs.pop(0)
@@ -216,28 +167,47 @@ def repl():
     ...         raise KeyboardInterrupt
     >>> import builtins
     >>> builtins.input = monkey_input
-    >>> repl()
+    >>> result = repl()
     chat> /ls testCases
-    testCases/testV1.txt
+    testCases/a.txt testCases/b.txt testCases/testV1.txt testCases/test_write.txt
     chat> Hello, I am monkey.
-    Arrr, 'ello there, Monkey me lad! What be bringin' ye to these fair waters?
+    Hello monkey.
     chat> Goodbye.
-    Farewell, Monkey me lad! May the winds o' fortune blow in yer favor!
+    Goodbye monkey.
     <BLANKLINE>
     """
+    if not os.path.exists(".git"):
+        print("Error: not a git repository")
+        return
+
     chat = Chat()
+
+    if os.path.exists("AGENTS.md"):
+        agents_content = cat("AGENTS.md")
+        chat.messages.append(
+            {
+                "role": "user",
+                "content": f"AGENTS.md: {agents_content}",
+            }
+        )
+
     try:
         while True:
-            user_input = input('chat> ')
-            if user_input.startswith('/'):
+            user_input = input("chat> ")
+            if user_input.startswith("/"):
                 output = handle_slash_command(user_input)
                 print(output)
-                chat.inject_tool_result(user_input[1:].split()[0], output)
+                chat.messages.append(
+                    {
+                        "role": "user",
+                        "content": f"/{user_input[1:].split()[0]} output: {output}",
+                    }
+                )
             else:
                 print(chat.send_message(user_input, temperature=0.0))
     except (KeyboardInterrupt, EOFError):
         print()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     repl()

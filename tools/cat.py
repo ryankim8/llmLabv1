@@ -2,8 +2,6 @@ from tools.safety import is_path_safe
 
 
 def cat(path):
-    # Reads and returns content of file
-
     """
     >>> # Normal Read
     >>> cat('testCases/testV1.txt')
@@ -44,3 +42,19 @@ def cat(path):
                 return f.read()
         except Exception:
             return 'Error: could not decode file'
+
+
+SCHEMA = {
+    "type": "function",
+    "function": {
+        "name": "cat",
+        "description": "Read the contents of a file.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "path": {"type": "string", "description": "File to read."}
+            },
+            "required": ["path"],
+        },
+    },
+}
