@@ -1,4 +1,3 @@
-import git
 from tools.write_files import write_files
 
 
